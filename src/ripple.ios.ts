@@ -88,6 +88,7 @@ export class Ripple extends common.Ripple {
    * @param y
    */
   performRipple(x: number, y: number) {
+    console.log('performRipple');
     this.createRipple(x, y);
     this.finishRipple();
   }
@@ -99,6 +100,7 @@ export class Ripple extends common.Ripple {
    * @param action
    */
   updateRipple(x: number, y: number, action: 'up' | 'down' | 'move' | 'cancel') {
+    console.log('updateRipple: ' + action);
     if (action === 'down') {
       this.startRipple(x, y);
     } else if (action === 'move' && this.ripple) {
@@ -114,6 +116,7 @@ export class Ripple extends common.Ripple {
    * @param y
    */
   createRipple(x: number, y: number) {
+    console.log('createRipple');
     const nativeView = this.ios;
     const size = this.getActualSize();
     const longestSide = Math.max(size.height, size.width);
@@ -136,9 +139,12 @@ export class Ripple extends common.Ripple {
    * @param y
    */
   startRipple(x: number, y: number) {
+    console.log('startRipple');
     this.createRipple(x, y);
     this.animateScaleRipple(0.1, 1, 2.5, (anim, flag) => {
       this.rippleIsFullyExtended = true;
+      this.finishRipple();
+      console.log('Fully extended');
     });
   }
 
@@ -148,6 +154,7 @@ export class Ripple extends common.Ripple {
    * @param y
    */
   moveRipple(x: number, y: number) {
+    console.log('moveRipple');
     if (this.ripple) {
       const size = this.getActualSize();
 
@@ -164,13 +171,14 @@ export class Ripple extends common.Ripple {
    * Finish the current ripple using the quick scale and fade animation
    */
   finishRipple() {
+    console.log('finishRipple');
     if (this.ripple) {
       const presentationLayer = this.ripple.layer.presentationLayer();
-      const currentScale = presentationLayer.valueForKeyPath('transform.scale');
       this.cancelScaleRippleAnimation();
 
       const currentRipple = this.ripple;
-      if (!this.rippleIsFullyExtended) {
+      if (presentationLayer && !this.rippleIsFullyExtended) {
+        const currentScale = presentationLayer.valueForKeyPath('transform.scale');
         this.animateScaleRipple(currentScale, 1, 0.5);
         this.animateFadeRipple(0.5, 0, 0.5, 0.2, (anim, flag) => {
           currentRipple.removeFromSuperview();
@@ -200,6 +208,7 @@ export class Ripple extends common.Ripple {
     animationDidStopFinishedCallback = (anim, flag) => {},
     animationDidStartCallback = anim => {}
   ) {
+    console.log('animateScaleRipple');
     const scaleAnimation: CABasicAnimation = CABasicAnimation.animationWithKeyPath('transform.scale');
     scaleAnimation.fromValue = fromScale;
     scaleAnimation.toValue = toScale;
@@ -217,6 +226,7 @@ export class Ripple extends common.Ripple {
    * Cancel the current ripple scale animation
    */
   cancelScaleRippleAnimation() {
+    console.log('cancelScaleRippleAnimation');
     this.ripple.layer.removeAnimationForKey('scale');
   }
 
@@ -236,6 +246,7 @@ export class Ripple extends common.Ripple {
     animationDidStopFinishedCallback = (anim, flag) => {},
     animationDidStartCallback = anim => {}
   ) {
+    console.log('animateFadeRipple');
     const fadeAnimation: CABasicAnimation = CABasicAnimation.animationWithKeyPath('opacity');
     fadeAnimation.fromValue = fromAlpha;
     fadeAnimation.toValue = toAlpha;
@@ -255,6 +266,7 @@ export class Ripple extends common.Ripple {
    * Cancel the current ripple fade animation
    */
   cancelFadeRippleAnimation() {
+    console.log('cancelFadeRippleAnimation');
     this.ripple.layer.removeAnimationForKey('fade');
   }
 
